@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR HEX-DEC ANALYZER</title>
+    <style>
+        :root { --main: #e91e63; --bg: #0b0b0b; }
+        body { background: var(--bg); color: #fff; font-family: 'Consolas', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .app { width: 360px; background: #151515; border: 1px solid var(--main); border-radius: 15px; padding: 20px; box-shadow: 0 0 25px rgba(233, 30, 99, 0.3); }
+        h3 { color: var(--main); text-align: center; margin-bottom: 20px; text-transform: uppercase; }
+        .input-box { margin-bottom: 15px; }
+        label { font-size: 10px; color: #666; display: block; margin-bottom: 5px; }
+        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; box-sizing: border-box; text-align: center; outline: none; }
+        input:focus { border-color: var(--main); }
+        button { width: 100%; padding: 15px; background: var(--main); border: none; color: #fff; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        .panel { margin-top: 20px; background: #222; padding: 15px; border-radius: 10px; display: none; border: 1px solid #333; }
+        .time-res { font-size: 32px; color: var(--main); font-weight: bold; text-align: center; margin: 10px 0; }
+        .hist-log { margin-top: 20px; border-top: 1px solid #333; padding-top: 10px; font-size: 11px; }
+        .hist-entry { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #222; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <h3>🚀 AVIATOR EXPERT</h3>
+    
+    <div class="input-box">
+        <label>HEURE DE DÉPART (Point A)</label>
+        <input type="text" id="hDepart" placeholder="10:15:05">
+    </div>
+
+    <div class="input-box">
+        <label>DERNIÈRE CÔTE (Point B)</label>
+        <input type="text" id="lastCote" placeholder="Ex: 1.80">
+    </div>
+
+    <div class="input-box">
+        <label>HASH HEXADÉCIMAL (Point C)</label>
+        <input type="text" id="hashHex" placeholder="Coller le Hash ici...">
+    </div>
+
+    <button onclick="calculerAviator()">Analyser le Cycle</button>
+
+    <div class="panel" id="resPanel">
+        <div style="font-size: 10px; text-align: center; color: #888;">HEURE D'ENTRÉE ESTIMÉE</div>
+        <div class="time-res" id="finalTime">00:00:00</div>
+        <div id="decVal" style="font-size: 9px; text-align: center; color: var(--main);"></div>
+    </div>
+
+    <div class="hist-log" id="histLog">
+        <div style="color: #444; margin-bottom: 5px;">HISTORIQUE DES TOURS</div>
+    </div>
+</div>
+
+<script>
+    let history = [];
+
+    function calculerAviator() {
+        const time = document.getElementById('hDepart').value;
+        const cote = document.getElementById('lastCote').value;
+        const hash = document.getElementById('hashHex').value;
+
+        if (!time.includes(':') || hash.length < 8) {
+            alert("Données insuffisantes !"); return;
+        }
+
+        // 1. ÉTUDE HEX -> DECIMAL
+        let hexPart = hash.substring(0, 8);
+        let decimal = parseInt(hexPart, 16);
+
+        // 2. ÉTUDE DU CYCLE (Tour par Tour)
+        // Ny côte teo aloha no mnotehitra ny "poids" amin'ny lera manaraka
+        let coteFactor = parseFloat(cote) || 1.0;
+        let delay = (decimal % 300) + (coteFactor * 15);
+
+        // 3. CALCUL LERA EXACTE
+        let t = time.split(':');
+        let d = new Date();
+        d.setHours(parseInt(t[0]), parseInt(t[1]), parseInt(t[2]));
+        d.setSeconds(d.getSeconds() + delay);
+
+        let finalT = d.toLocaleTimeString('fr-FR', { hour12: false });
+
+        // Affichage
+        document.getElementById('finalTime').innerText = finalT;
+        document.getElementById('decVal').innerText = "VALEUR DÉCIMALE: " + decimal;
+        document.getElementById('resPanel').style.display = 'block';
+
+        // Update Log
+        updateLog(finalT, hexPart);
+    }
+
+    function updateLog(t, h) {
+        history.unshift({t: t, h: h});
+        if(history.length > 3) history.pop();
+        const logBox = document.getElementById('histLog');
+        let html = "<div style='color: #444; margin-bottom: 5px;'>HISTORIQUE DES TOURS</div>";
+        history.forEach(item => {
+            html += `<div class="hist-entry"><span>${item.t}</span><span style="color:#555">Hex: ${item.h}</span></div>`;
+        });
+        logBox.innerHTML = html;
+    }
+</script>
+
+</body>
+</html>
