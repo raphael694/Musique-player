@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - PRECISION SYSTEM</title>
+    <style>
+        :root {
+            --accent: #ff0044;
+            --bg-dark: #080808;
+            --card-bg: #121212;
+            --text-gray: #888;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 360px;
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        h2 {
+            color: var(--accent);
+            text-align: center;
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: monospace;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .hash-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 20px;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result-panel {
+            margin-top: 25px;
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid var(--accent);
+            display: none;
+        }
+
+        .result-time {
+            font-size: 34px;
+            font-weight: bold;
+            color: #00ff88;
+            margin-top: 5px;
+        }
+
+        .history {
+            margin-top: 30px;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+        }
+
+        .history-title {
+            font-size: 10px;
+            color: var(--text-gray);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            background: #1a1a1a;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        .item-time { font-weight: bold; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎯 ANALYSEUR D'ENTRÉE</h2>
+
+    <div class="input-group">
+        <label>Heure du dernier 2x (HH:MM:SS)</label>
+        <input type="text" id="timeRef" placeholder="Ex: 14:20:05">
+    </div>
+
+    <div class="hash-grid">
+        <div class="input-group">
+            <label>1er Hex</label>
+            <input type="text" id="hex1" maxlength="1" placeholder="F">
+        </div>
+        <div class="input-group">
+            <label>Dernier Déc.</label>
+            <input type="text" id="decLast" maxlength="1" placeholder="9">
+        </div>
+        <div class="input-group">
+            <label>2 Derniers Hex</label>
+            <input type="text" id="hexTail" maxlength="2" placeholder="A2">
+        </div>
+    </div>
+
+    <button onclick="calculerEntreeExacte()">Calculer Point d'Entrée</button>
+
+    <div class="result-panel" id="resultPanel">
+        <div style="font-size: 10px; color: #aaa;">PLACEZ VOTRE MISE À :</div>
+        <div class="result-time" id="finalTime">00:00:00</div>
+    </div>
+
+    <div class="history">
+        <div class="history-title">HISTORIQUE DES 3 DERNIERS SIGNAUX</div>
+        <div id="historyList"></div>
+    </div>
+</div>
+
+<script>
+    let historyData = [];
+
+    function calculerEntreeExacte() {
+        const timeRef = document.getElementById('timeRef').value;
+        const h1 = document.getElementById('hex1').value;
+        const dL = document.getElementById('decLast').value;
+        const hT = document.getElementById('hexTail').value;
+
+        if (!timeRef.includes(':') || h1 === "" || dL === "" || hT === "") {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        // --- ALGORITHME DE CONVERSION ---
+        let v1 = parseInt(h1, 16);
+        let vLast = parseInt(dL, 10);
+        let vTail = parseInt(hT, 16);
+
+        // Calcul du délai basé sur votre logique Hex/Décimal
+        // Formule de décalage dynamique
+        let delay = (v1 * 12) + (vLast * 5) + (vTail % 60);
+        
+        // Stabilisation (min 45s, max 4min)
+        let finalDelay = (delay % 240) + 45;
+
+        // --- CALCUL DE L'HEURE FINALE ---
+        let parts = timeRef.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + finalDelay);
+
+        let finalClock = d.toLocaleTimeString('fr-FR', { hour12: false });
+
+        // Affichage
+        document.getElementById('finalTime').innerText = finalClock;
+        document.getElementById('resultPanel').style.display = "block";
+
+        updateHistory(finalClock, h1 + "..." + hT);
+    }
+
+    function updateHistory(time, code) {
+        historyData.unshift({ t: time, c: code });
+        if (historyData.length > 3) historyData.pop();
+
+        const list = document.getElementById('historyList');
+        list.innerHTML = "";
+        historyData.forEach(item => {
+            list.innerHTML += `
+                <div class="history-item">
+                    <span class="item-time">${item.t}</span>
+                    <span style="color:#555">Code: ${item.c}</span>
+                </div>
+            `;
+        });
+    }
+</script>
+
+</body>
+</html>
