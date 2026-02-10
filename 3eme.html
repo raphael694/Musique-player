@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - POINT D'ENTRÉE EXACT</title>
+    <style>
+        :root {
+            --aviator-red: #e11d48;
+            --bg-main: #0a0a0a;
+            --input-bg: #151515;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: #ffffff;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 380px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            color: var(--aviator-red);
+            text-align: center;
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 30px;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid #333;
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--aviator-red);
+            background: #1a1a1a;
+        }
+
+        .grid-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--aviator-red);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 25px;
+            box-shadow: 0 4px 0px #9f1239;
+            transition: all 0.1s;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px #9f1239;
+        }
+
+        .result-panel {
+            margin-top: 30px;
+            background: #000;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid #222;
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .result-label {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .result-time {
+            font-size: 38px;
+            font-weight: 900;
+            color: #22c55e;
+            text-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 AVIATOR ANALYZER</h2>
+
+    <div class="field">
+        <label>Heure de référence (Dernier 2x)</label>
+        <input type="text" id="timeRef" placeholder="HH:MM:SS">
+    </div>
+
+    <div class="grid-inputs">
+        <div class="field">
+            <label>1er Hex</label>
+            <input type="text" id="hex1" maxlength="1">
+        </div>
+        <div class="field">
+            <label>Dernier Déc.</label>
+            <input type="text" id="decLast" maxlength="1">
+        </div>
+        <div class="field">
+            <label>2 Derniers Hex</label>
+            <input type="text" id="hexTail" maxlength="2">
+        </div>
+    </div>
+
+    <button onclick="calculateAviatorPoint()">Calculer Point d'Entrée</button>
+
+    <div class="result-panel" id="resBox">
+        <div class="result-label">HEURE D'ENTRÉE RECOMMANDÉE</div>
+        <div class="result-time" id="finalClock">00:00:00</div>
+    </div>
+</div>
+
+<script>
+    function calculateAviatorPoint() {
+        const tInput = document.getElementById('timeRef').value;
+        const h1 = document.getElementById('hex1').value;
+        const dL = document.getElementById('decLast').value;
+        const hT = document.getElementById('hexTail').value;
+
+        if (!tInput.includes(':') || h1 === "" || dL === "" || hT === "") {
+            alert("Données manquantes");
+            return;
+        }
+
+        // Conversion des segments
+        let valHex1 = parseInt(h1, 16);
+        let valDecLast = parseInt(dL, 10);
+        let valHexTail = parseInt(hT, 16);
+
+        // Algorithme Aviator spécifique
+        // Poids du Hex voalohany sy ny rambo
+        let delay = (valHex1 * 12) + (valDecLast * 5) + (valHexTail % 60);
+        
+        // Stabilisation du cycle Aviator (entre 40s et 4min)
+        let finalDelay = (delay % 240) + 40;
+
+        let parts = tInput.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + finalDelay);
+
+        document.getElementById('finalClock').innerText = d.toLocaleTimeString('fr-FR', { hour12: false });
+        document.getElementById('resBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
