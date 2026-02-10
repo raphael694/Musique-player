@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLIZZARD ANALYZER PRO</title>
+    <style>
+        :root {
+            --neon-green: #00ff88;
+            --neon-yellow: #ffcc00;
+            --neon-red: #ff3333;
+            --bg-dark: #050505;
+            --card-bg: #111111;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 360px;
+            background: var(--card-bg);
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
+        }
+
+        h2 {
+            color: var(--neon-yellow);
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 9px;
+            color: #555;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-family: monospace;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--neon-green);
+        }
+
+        #manualTime {
+            color: var(--neon-green);
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--neon-green);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        /* Panneau Résultat */
+        .result-panel {
+            margin-top: 25px;
+            background: linear-gradient(145deg, #b71c1c, #d32f2f);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .result-time {
+            font-size: 36px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* Historique */
+        .history-section {
+            margin-top: 30px;
+            border-top: 1px solid #222;
+            padding-top: 15px;
+        }
+
+        .history-title {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .history-item {
+            background: #161616;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--neon-yellow);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .hist-time {
+            font-weight: bold;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .hist-hash {
+            font-size: 9px;
+            color: #666;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>✨ BLIZZARD - SYSTEM ✨</h2>
+        <div class="subtitle">M.H.S CALCULATOR - PREMIUM v4.0</div>
+
+        <label class="label">Heure de départ (HH:MM:SS)</label>
+        <input type="text" id="manualTime" placeholder="23:40:29">
+
+        <label class="label">Code Hash (SHA-256)</label>
+        <input type="text" id="hashInput" placeholder="Coller le hash ici...">
+
+        <button onclick="processCalculation()">CALCULER SIGNAL</button>
+
+        <div class="result-panel" id="resultPanel">
+            <div style="font-size: 10px; text-transform: uppercase; margin-bottom: 5px;">Prochain Signal Boom</div>
+            <div class="result-time" id="boomTime">--:--:--</div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-title">Historique des signaux</div>
+            <div id="historyList">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        let historyData = [];
+
+        function processCalculation() {
+            const timeVal = document.getElementById('manualTime').value.trim();
+            const hashVal = document.getElementById('hashInput').value.trim();
+            const resultPanel = document.getElementById('resultPanel');
+            const boomTimeDisplay = document.getElementById('boomTime');
+
+            if (!timeVal.includes(':') || hashVal.length < 8) {
+                alert("Erreur: Veuillez remplir l'heure et le Hash correctement.");
+                return;
+            }
+
+            // --- Algorithme de calcul ---
+            let parts = timeVal.split(':');
+            let h = parseInt(parts[0]);
+            let m = parseInt(parts[1]);
+            let s = parts.length > 2 ? parseInt(parts[2]) : 0;
+
+            let date = new Date();
+            date.setHours(h, m, s);
+
+            // Extraction du Hash pour la stabilité
+            let seed = hashVal.substring(hashVal.length - 6);
+            let hexNum = parseInt(seed, 16);
+            
+            // On ajoute entre 1min et 6min basé sur le hash
+            let secondsToAdd = (hexNum % 300) + 60; 
+            date.setSeconds(date.getSeconds() + secondsToAdd);
+
+            let resH = date.getHours().toString().padStart(2, '0');
+            let resM = date.getMinutes().toString().padStart(2, '0');
+            let resS = date.getSeconds().toString().padStart(2, '0');
+            let finalResult = `${resH}:${resM}:${resS}`;
+
+            // Affichage résultat
+            boomTimeDisplay.innerText = finalResult;
+            resultPanel.style.display = "block";
+
+            // Mise à jour de l'historique
+            updateHistory(finalResult, hashVal);
+        }
+
+        function updateHistory(newTime, hash) {
+            const historyList = document.getElementById('historyList');
+            
+            // Ajouter au début du tableau
+            historyData.unshift({ time: newTime, hash: hash });
+
+            // Garder seulement les 3 derniers
+            if (historyData.length > 3) {
+                historyData.pop();
+            }
+
+            // Rafraîchir l'affichage
+            historyList.innerHTML = "";
+            historyData.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <span class="hist-time">${item.time}</span>
+                    <span class="hist-hash">${item.hash}</span>
+                `;
+                historyList.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
