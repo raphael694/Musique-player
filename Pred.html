@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - ADVANCED HEX LOGIC</title>
+    <style>
+        :root { --aviator-red: #d32f2f; --bg: #050505; }
+        body { background: var(--bg); color: white; font-family: 'Consolas', monospace; display: flex; justify-content: center; padding: 20px; }
+        .wrapper { width: 100%; max-width: 380px; background: #111; border: 2px solid var(--aviator-red); border-radius: 20px; padding: 25px; box-shadow: 0 0 40px rgba(211, 47, 47, 0.2); }
+        h2 { text-align: center; color: var(--aviator-red); font-size: 18px; text-transform: uppercase; margin-bottom: 25px; }
+        .input-item { margin-bottom: 15px; }
+        label { font-size: 10px; color: #666; display: block; margin-bottom: 5px; text-transform: uppercase; }
+        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 15px; outline: none; }
+        #hashIn { border-color: #444; font-size: 12px; }
+        button { width: 100%; padding: 18px; background: var(--aviator-red); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+        .display-result { margin-top: 25px; background: #1a1a1a; padding: 20px; border-radius: 15px; text-align: center; display: none; border: 1px solid #333; }
+        .time-val { font-size: 36px; font-weight: 900; color: var(--aviator-red); text-shadow: 0 0 10px rgba(211, 47, 47, 0.4); }
+        .tech-info { font-size: 9px; color: #555; margin-top: 10px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <h2>🚀 AVIATOR STRATEGY V7</h2>
+    
+    <div class="input-item">
+        <label>Heure de référence (Dernier 2x)</label>
+        <input type="text" id="timeRef" placeholder="14:20:05">
+    </div>
+
+    <div class="input-item">
+        <label>Dernier Résultat (Cote)</label>
+        <input type="text" id="coteRef" placeholder="Ex: 1.45">
+    </div>
+
+    <div class="input-item">
+        <label>Hash Complet (Si possible) ou Partiel</label>
+        <input type="text" id="hashIn" placeholder="Entrez le Hash ici...">
+    </div>
+
+    <button onclick="runAdvancedLogic()">Analyser l'entrée exacte</button>
+
+    <div class="display-result" id="resPanel">
+        <div style="font-size: 11px; margin-bottom: 5px; color: #aaa;">MOMENT D'ENTRÉE OPTIMAL</div>
+        <div class="time-val" id="timeFinal">00:00:00</div>
+        <div class="tech-info" id="techDetails"></div>
+    </div>
+</div>
+
+<script>
+    function runAdvancedLogic() {
+        const timeStr = document.getElementById('timeRef').value;
+        const coteStr = document.getElementById('coteRef').value;
+        const hashStr = document.getElementById('hashIn').value.trim();
+
+        if (!timeStr.includes(':') || hashStr.length < 5) {
+            alert("Données insuffisantes !"); return;
+        }
+
+        // --- NY LOJIKAO: 1er character, dernier character, 2 derniers ---
+        
+        // 1. 1er caractère Hex
+        let firstHex = hashStr.substring(0, 1);
+        let firstDec = parseInt(firstHex, 16);
+
+        // 2. Dernier caractère (Décimal influence)
+        let lastChar = hashStr.substring(hashStr.length - 1);
+        let lastDec = parseInt(lastChar, 16);
+
+        // 3. 2 derniers caractères Hex
+        let lastTwoHex = hashStr.substring(hashStr.length - 2);
+        let lastTwoDec = parseInt(lastTwoHex, 16);
+
+        // --- KAJY NY DÉLAI (ALGORITHME) ---
+        // Atambatra ireo hery telo ireo
+        let baseCote = parseFloat(coteStr) || 1.0;
+        
+        // Formula: (Voalohany * 10) + (Farany) + (2-Farany modulo 60)
+        let totalDelay = (firstDec * 12) + (lastDec) + (lastTwoDec % 60) + (baseCote * 5);
+
+        // Ny elanelana dia tokony eo anelanelan'ny 45s ka hatramin'ny 300s (5min)
+        let finalDelay = (totalDelay % 240) + 45;
+
+        // --- CALCUL FINAL ---
+        let parts = timeStr.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + finalDelay);
+
+        let resTime = d.toLocaleTimeString('fr-FR', { hour12: false });
+
+        document.getElementById('timeFinal').innerText = resTime;
+        document.getElementById('techDetails').innerHTML = 
+            `ANALYSE: FIRST_HEX(${firstHex}) | LAST_DEC(${lastDec}) | TAIL_HEX(${lastTwoHex})<br>` +
+            `CORRECTION APPLIQUÉE: +${finalDelay} SECONDES`;
+        
+        document.getElementById('resPanel').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
