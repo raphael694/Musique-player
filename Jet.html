@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLIZZARD ANALYZER V5</title>
+    <style>
+        :root { --green: #00ff88; --gold: #ffcc00; --red: #ff3333; --dark: #050505; }
+        body { background: var(--dark); color: white; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
+        .container { width: 100%; max-width: 360px; background: #111; border: 1px solid #333; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); box-sizing: border-box; }
+        h2 { color: var(--gold); text-align: center; letter-spacing: 2px; text-transform: uppercase; font-size: 18px; margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 10px; color: #777; display: block; margin-bottom: 6px; text-transform: uppercase; }
+        input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; padding: 14px; border-radius: 10px; box-sizing: border-box; font-family: monospace; outline: none; text-align: center; font-size: 14px; transition: 0.3s; }
+        input:focus { border-color: var(--green); }
+        #manualTime { color: var(--green); font-weight: bold; font-size: 18px; border-color: var(--green); }
+        #lastRes { color: var(--gold); border-color: var(--gold); font-weight: bold; }
+        button { width: 100%; padding: 18px; background: var(--green); color: black; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .result-box { margin-top: 25px; background: var(--red); padding: 20px; border-radius: 15px; text-align: center; display: none; animation: fadeIn 0.4s; }
+        .res-time { font-size: 36px; font-weight: 900; letter-spacing: 2px; }
+        .history { margin-top: 25px; border-top: 1px solid #222; padding-top: 15px; }
+        .hist-item { background: #161616; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; font-size: 13px; border-left: 4px solid var(--gold); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✨ BLIZZARD SYSTEM ✨</h2>
+
+    <div class="input-group">
+        <label>Heure du 2x précédent (HH:MM:SS)</label>
+        <input type="text" id="manualTime" placeholder="Ex: 23:40:29">
+    </div>
+
+    <div class="input-group">
+        <label>Cote actuelle / dernier résultat</label>
+        <input type="text" id="lastRes" placeholder="Ex: 1.45">
+    </div>
+
+    <div class="input-group">
+        <label>Hash SHA-256 du jeu</label>
+        <input type="text" id="hashInput" placeholder="Coller le hash ici...">
+    </div>
+
+    <button onclick="analyserSignal()">CALCULER SIGNAL D'ENTRÉE</button>
+
+    <div class="result-box" id="resultArea">
+        <div style="font-size: 11px; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">SIGNAL D'ENTRÉE EXACT</div>
+        <div class="res-time" id="finalTime">00:00:00</div>
+    </div>
+
+    <div class="history">
+        <div style="font-size: 10px; color: #555; margin-bottom: 12px; text-align: center; text-transform: uppercase;">Historique des entrées</div>
+        <div id="histContent"></div>
+    </div>
+</div>
+
+<script>
+    let logs = [];
+
+    function analyserSignal() {
+        const timeStr = document.getElementById('manualTime').value;
+        const resVal = document.getElementById('lastRes').value;
+        const hashStr = document.getElementById('hashInput').value;
+
+        if (!timeStr.includes(':') || hashStr.length < 10) {
+            alert("Données incomplètes !"); return;
+        }
+
+        // Logic de calcul : l'heure d'entrée dépend du Hash et du dernier résultat
+        let hex = hashStr.substring(0, 8);
+        let decValue = parseInt(hex, 16);
+        let resFactor = parseFloat(resVal.replace(',', '.')) || 1.0;
+
+        // Calcul du délai (Algorithme de cycle)
+        let baseDelay = (decValue % 240) + 60; // Délai entre 1 et 5 min
+        let correction = resFactor > 2 ? 15 : -10; // Ajustement si la cote était déjà haute
+        let finalDelay = baseDelay + correction;
+
+        let parts = timeStr.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + finalDelay);
+
+        let resultTime = d.toLocaleTimeString('fr-FR', { hour12: false });
+
+        document.getElementById('finalTime').innerText = resultTime;
+        document.getElementById('resultArea').style.display = 'block';
+
+        // Mise à jour historique
+        logs.unshift({ time: resultTime, res: resVal });
+        if(logs.length > 3) logs.pop();
+        const content = document.getElementById('histContent');
+        content.innerHTML = "";
+        logs.forEach(l => {
+            content.innerHTML += `<div class="hist-item"><b>${l.time}</b> <span style="color:#666">Cote: ${l.res}x</span></div>`;
+        });
+    }
+</script>
+
+</body>
+</html>
