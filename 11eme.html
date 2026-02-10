@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - ULTIMATE PRECISION</title>
+    <style>
+        :root { 
+            --red: #ff0044; 
+            --bg: #050505; 
+            --card-bg: #121212;
+            --accent: #00ff88;
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            padding: 20px; 
+            margin: 0; 
+            min-height: 100vh;
+        }
+
+        .card { 
+            width: 100%; 
+            max-width: 380px; 
+            background: var(--card-bg); 
+            border: 1px solid #222; 
+            border-radius: 24px; 
+            padding: 25px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9); 
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Effet de lumière en haut */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+        }
+
+        h2 { 
+            text-align: center; 
+            color: var(--red); 
+            font-size: 14px; 
+            letter-spacing: 3px; 
+            text-transform: uppercase; 
+            margin-bottom: 30px; 
+            font-weight: 900;
+        }
+
+        .input-group { margin-bottom: 18px; }
+
+        label { 
+            display: block; 
+            font-size: 10px; 
+            color: #777; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        input { 
+            width: 100%; 
+            background: #000; 
+            border: 1px solid #252525; 
+            color: #fff; 
+            padding: 14px; 
+            border-radius: 12px; 
+            box-sizing: border-box; 
+            text-align: center; 
+            font-family: 'Courier New', monospace; 
+            font-size: 16px; 
+            outline: none; 
+            transition: 0.3s ease; 
+        }
+
+        input:focus { 
+            border-color: var(--red); 
+            box-shadow: 0 0 15px rgba(255, 0, 68, 0.15);
+            background: #080808;
+        }
+
+        .hash-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 12px; 
+            margin-bottom: 20px;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--red); 
+            color: #fff; 
+            border: none; 
+            border-radius: 14px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            transition: transform 0.2s, background 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 68, 0.3);
+        }
+
+        button:active { transform: scale(0.97); }
+
+        .res-box { 
+            margin-top: 25px; 
+            background: linear-gradient(145deg, #000, #0a0a0a); 
+            padding: 20px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 1px solid #1a1a1a; 
+            display: none; 
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .res-time { 
+            font-size: 40px; 
+            font-weight: 900; 
+            color: var(--accent); 
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.4); 
+            margin: 5px 0;
+        }
+
+        /* Historique Style */
+        .history-section {
+            width: 100%;
+            max-width: 380px;
+            margin-top: 25px;
+        }
+
+        .history-title {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-title::after { content: ''; flex: 1; height: 1px; background: #222; }
+
+        .history-list { list-style: none; padding: 0; margin: 0; }
+
+        .history-item {
+            background: #111;
+            margin-bottom: 8px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid var(--red);
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } }
+
+        .hist-time { color: var(--accent); font-weight: bold; font-family: monospace; }
+        .hist-ref { color: #666; font-size: 11px; }
+
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>🚀 AVIATOR STRATEGY V12</h2>
+
+    <div class="input-group">
+        <label>Heure de Référence (HH:MM:SS)</label>
+        <input type="text" id="tIn" placeholder="00:38:12">
+    </div>
+
+    <div class="hash-grid">
+        <div>
+            <label>1er Hex</label>
+            <input type="text" id="h1" maxlength="1">
+        </div>
+        <div>
+            <label>Dernier Déc.</label>
+            <input type="text" id="dL" maxlength="1">
+        </div>
+        <div>
+            <label>Tail Hex</label>
+            <input type="text" id="hT" maxlength="2">
+        </div>
+    </div>
+
+    <button onclick="calculate()">Calculer Point d'Entrée</button>
+
+    <div class="res-box" id="resBox">
+        <div style="font-size: 10px; color: #888; letter-spacing: 1px;">RÉSULTAT GÉNÉRÉ</div>
+        <div class="res-time" id="fTime">00:00:00</div>
+        <div style="font-size: 9px; color: #444; text-transform: uppercase;">Précision Algorithmique Optimisée</div>
+    </div>
+</div>
+
+<div class="history-section">
+    <div class="history-title">Historique des 5 derniers</div>
+    <div id="historyList" class="history-list">
+        </div>
+</div>
+
+<script>
+    let historyData = [];
+
+    function calculate() {
+        const timeVal = document.getElementById('tIn').value;
+        const h1 = document.getElementById('h1').value;
+        const dL = document.getElementById('dL').value;
+        const hT = document.getElementById('hT').value;
+
+        if (!timeVal.includes(':') || h1 === "" || dL === "" || hT === "") return;
+
+        // --- TSY NOVAINA NY LOGIQUE ---
+        let val1 = parseInt(h1, 16);
+        let valLast = parseInt(dL, 10);
+        let valTail = parseInt(hT, 16);
+        let delay = (val1 * 13.5) + (valLast * 3.5) + (valTail % 60);
+        let finalDelay = (delay % 210) + 50; 
+
+        let parts = timeVal.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + finalDelay);
+
+        const resultTime = d.toLocaleTimeString('fr-FR', { hour12: false });
+        // --- FIN LOGIQUE ---
+
+        // Display result
+        document.getElementById('fTime').innerText = resultTime;
+        document.getElementById('resBox').style.display = 'block';
+
+        // Update Historique
+        updateHistory(timeVal, resultTime);
+    }
+
+    function updateHistory(ref, result) {
+        const histObj = { ref, result };
+        historyData.unshift(histObj); // Ampiana eo amin'ny voalohany
+
+        if (historyData.length > 5) {
+            historyData.pop(); // Esory ny faha-6 raha mihoatra
+        }
+
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+
+        historyData.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <span class="hist-ref">Réf: ${item.ref}</span>
+                <span class="hist-time">${item.result}</span>
+            `;
+            list.appendChild(div);
+        });
+    }
+</script>
+
+</body>
+</html>
