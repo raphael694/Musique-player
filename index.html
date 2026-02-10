@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="mg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapha Multi-Music Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #020617; color: white; font-family: 'Segoe UI', sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .disk { animation: rotate 10s linear infinite; animation-play-state: paused; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .playing .disk { animation-play-state: running; }
+        input[type="range"] { accent-color: #22d3ee; }
+        .active-song { background: rgba(34, 211, 238, 0.1); border-left: 4px solid #22d3ee; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="player" class="glass w-full max-w-md p-6 rounded-[2.5rem] shadow-2xl">
+        <div class="relative w-40 h-40 mx-auto mb-4">
+            <div class="disk w-full h-full rounded-full border-4 border-cyan-500/20 overflow-hidden shadow-2xl">
+                <img id="cover" src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300" alt="Cover" class="w-full h-full object-cover">
+            </div>
+        </div>
+
+        <div class="text-center mb-6">
+            <h2 id="title" class="text-lg font-bold truncate">Misafidiana hira...</h2>
+            <p id="artist" class="text-cyan-500 text-xs">Rapha Music Player</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 mb-6">
+            <button onclick="prevSong()" class="text-slate-400 hover:text-cyan-400"><svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+            <button onclick="togglePlay()" class="bg-cyan-600 p-4 rounded-full shadow-lg shadow-cyan-500/20 active:scale-90 transition-all">
+                <div id="play-icon"><svg width="28" height="28" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            </button>
+            <button onclick="nextSong()" class="text-slate-400 hover:text-cyan-400"><svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+        </div>
+
+        <input type="range" id="progress" value="0" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer mb-6">
+
+        <div class="mt-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400">Playlist</h3>
+                <input type="file" id="file-input" accept="audio/*" multiple class="hidden">
+                <button onclick="document.getElementById('file-input').click()" class="text-[10px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2 py-1 rounded">
+                    + Manampy Hira
+                </button>
+            </div>
+            <div id="playlist-container" class="max-h-48 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                </div>
+        </div>
+
+        <audio id="audio"></audio>
+    </div>
+
+    <script>
+        const audio = document.getElementById('audio');
+        const player = document.getElementById('player');
+        const playIcon = document.getElementById('play-icon');
+        const progress = document.getElementById('progress');
+        const title = document.getElementById('title');
+        const playlistContainer = document.getElementById('playlist-container');
+        const fileInput = document.getElementById('file-input');
+
+        let songs = [];
+        let songIndex = 0;
+
+        // Fampidirana hira maromaro
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const songData = {
+                    name: file.name.replace('.mp3', ''),
+                    src: URL.createObjectURL(file)
+                };
+                songs.push(songData);
+            });
+            renderPlaylist();
+            if (songs.length > 0 && audio.src === "") loadSong(0);
+        });
+
+        function renderPlaylist() {
+            playlistContainer.innerHTML = '';
+            songs.forEach((song, index) => {
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl cursor-pointer text-sm flex justify-between items-center transition-all ${index === songIndex ? 'active-song' : 'hover:bg-slate-800/50'}`;
+                div.innerHTML = `<span class="truncate pr-4">${index + 1}. ${song.name}</span> <span class="text-[10px] text-slate-500">MP3</span>`;
+                div.onclick = () => { songIndex = index; loadSong(index); togglePlay(); };
+                playlistContainer.appendChild(div);
+            });
+        }
+
+        function loadSong(index) {
+            if (!songs[index]) return;
+            songIndex = index;
+            title.innerText = songs[index].name;
+            audio.src = songs[index].src;
+            renderPlaylist();
+        }
+
+        function togglePlay() {
+            if (songs.length === 0) return;
+            if (audio.paused) {
+                audio.play();
+                player.classList.add('playing');
+                playIcon.innerHTML = '<svg width="28" height="28" fill="white" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            } else {
+                audio.pause();
+                player.classList.remove('playing');
+                playIcon.innerHTML = '<svg width="28" height="28" fill="white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+            }
+        }
+
+        function nextSong() {
+            songIndex = (songIndex + 1) % songs.length;
+            loadSong(songIndex);
+            audio.play();
+            player.classList.add('playing');
+        }
+
+        function prevSong() {
+            songIndex = (songIndex - 1 + songs.length) % songs.length;
+            loadSong(songIndex);
+            audio.play();
+            player.classList.add('playing');
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+        });
+
+        progress.addEventListener('input', () => {
+            audio.currentTime = (progress.value / 100) * audio.duration;
+        });
+
+        // Rehefa tapitra ny hira dia mandeha ny manaraka
+        audio.onended = nextSong;
+
+    </script>
+</body>
+</html>
