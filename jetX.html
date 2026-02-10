@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLIZZARD ANALYZER - FULL DATA</title>
+    <style>
+        :root { --green: #00ff88; --gold: #ffcc00; --red: #ff3333; --dark: #050505; }
+        body { background: var(--dark); color: white; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 360px; background: #111; border: 1px solid #333; border-radius: 20px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        h2 { color: var(--gold); text-align: center; letter-spacing: 2px; text-transform: uppercase; font-size: 18px; }
+        label { font-size: 10px; color: #666; display: block; margin: 10px 0 5px; text-transform: uppercase; }
+        input { width: 100%; background: #1a1a1a; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; box-sizing: border-box; font-family: monospace; outline: none; text-align: center; }
+        #manualTime { border-color: var(--green); color: var(--green); font-weight: bold; font-size: 16px; }
+        #lastRes { border-color: var(--gold); color: var(--gold); }
+        button { width: 100%; padding: 15px; background: var(--green); color: black; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
+        .result-box { margin-top: 20px; background: var(--red); padding: 15px; border-radius: 12px; text-align: center; display: none; }
+        .res-time { font-size: 34px; font-weight: bold; letter-spacing: 2px; }
+        .history { margin-top: 25px; border-top: 1px solid #222; padding-top: 10px; }
+        .hist-item { background: #161616; padding: 10px; margin-bottom: 8px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 12px; border-left: 3px solid var(--gold); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>✨ BLIZZARD SYSTEM ✨</h2>
+
+    <label>Heure du dernier 2x (HH:MM:SS)</label>
+    <input type="text" id="manualTime" placeholder="Ex: 23:40:29">
+
+    <label>Dernier Résultat (Cote, ex: 2.45)</label>
+    <input type="text" id="lastRes" placeholder="Ex: 1.85">
+
+    <label>Hash SHA-256 actuel</label>
+    <input type="text" id="hashInput" placeholder="Coller le hash ici...">
+
+    <button onclick="analyserTout()">Analyser le Signal</button>
+
+    <div class="result-box" id="resultArea">
+        <div style="font-size: 10px; opacity: 0.9;">HEURE D'ENTRÉE CONSEILLÉE</div>
+        <div class="res-time" id="finalTime">00:00:00</div>
+    </div>
+
+    <div class="history">
+        <div style="font-size: 10px; color: #444; margin-bottom: 10px; text-align: center;">LOGS DES DERNIERS SIGNAUX</div>
+        <div id="histContent"></div>
+    </div>
+</div>
+
+<script>
+    let logs = [];
+
+    function analyserTout() {
+        const time = document.getElementById('manualTime').value;
+        const res = document.getElementById('lastRes').value;
+        const hash = document.getElementById('hashInput').value;
+
+        if (!time.includes(':') || hash.length < 10) {
+            alert("Données manquantes !"); return;
+        }
+
+        // --- ALGORITHME AVANCÉ ---
+        // 1. Hash influence (8 chars)
+        let hex = hash.substring(0, 8);
+        let dec = parseInt(hex, 16);
+
+        // 2. Résultat influence
+        let resFactor = parseFloat(res) || 1.0;
+        
+        // Kajy ny elanelana (Délai)
+        // Raha kely ny résultat teo (crash vao maraina), dia mety ho ela vao hisy Boom
+        let delay = (dec % 300) + (resFactor * 10); 
+
+        // 3. Kajy ny lera
+        let t = time.split(':');
+        let d = new Date();
+        d.setHours(parseInt(t[0]), parseInt(t[1]), parseInt(t[2]));
+        d.setSeconds(d.getSeconds() + delay);
+
+        let final = d.toLocaleTimeString('fr-FR', { hour12: false });
+
+        // Affichage
+        document.getElementById('finalTime').innerText = final;
+        document.getElementById('resultArea').style.display = 'block';
+
+        // Update Log
+        logs.unshift({ time: final, cote: res });
+        if(logs.length > 3) logs.pop();
+        const content = document.getElementById('histContent');
+        content.innerHTML = "";
+        logs.forEach(l => {
+            content.innerHTML += `<div class="hist-item"><b>${l.time}</b> <span style="color:#666">Basé sur ${l.cote}x</span></div>`;
+        });
+    }
+</script>
+
+</body>
+</html>
