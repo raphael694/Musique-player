@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR - PRECISION V10</title>
+    <style>
+        :root {
+            --primary-red: #ff0040;
+            --bg-color: #0d0d0d;
+            --card-bg: #161616;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 380px;
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid #252525;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-red);
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .input-box {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 10px;
+            color: #777;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        input:focus {
+            border-color: var(--primary-red);
+        }
+
+        .grid-hash {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--primary-red);
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-transform: uppercase;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        button:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
+        .result-area {
+            margin-top: 30px;
+            background: #000;
+            padding: 20px;
+            border-radius: 18px;
+            text-align: center;
+            border: 1px dashed #444;
+            display: none;
+        }
+
+        .result-label {
+            font-size: 10px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .result-time {
+            font-size: 38px;
+            font-weight: 900;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        }
+
+        .footer-note {
+            font-size: 9px;
+            color: #444;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎯 AVIATOR ANALYZER</h2>
+
+    <div class="input-box">
+        <label>Heure de Référence (HH:MM:SS)</label>
+        <input type="text" id="timeInput" placeholder="00:38:12">
+    </div>
+
+    <div class="grid-hash">
+        <div class="input-box">
+            <label>1er Hex</label>
+            <input type="text" id="h1" maxlength="1" placeholder="A">
+        </div>
+        <div class="input-box">
+            <label>Dernier Déc.</label>
+            <input type="text" id="dL" maxlength="1" placeholder="7">
+        </div>
+        <div class="input-box">
+            <label>2 Derniers Hex</label>
+            <input type="text" id="hT" maxlength="2" placeholder="F4">
+        </div>
+    </div>
+
+    <button onclick="calculerEntreeExacte()">Calculer Point d'Entrée</button>
+
+    <div class="result-area" id="resultBox">
+        <div class="result-label">HEURE D'ENTRÉE PRÉCISE</div>
+        <div class="result-time" id="finalTime">00:00:00</div>
+    </div>
+
+    <div class="footer-note">
+        SYSTÈME BASÉ SUR L'ANALYSE CYCLIQUE SHA-256.<br>
+        UTILISEZ LA CÔTE PRÉCÉDENTE POUR LA RÉFÉRENCE TEMPORELLE.
+    </div>
+</div>
+
+<script>
+    function calculerEntreeExacte() {
+        const tRef = document.getElementById('timeInput').value;
+        const v1 = document.getElementById('h1').value;
+        const vL = document.getElementById('dL').value;
+        const vT = document.getElementById('hT').value;
+
+        if (!tRef.includes(':') || v1 === "" || vL === "" || vT === "") {
+            alert("Erreur : Veuillez remplir tous les champs.");
+            return;
+        }
+
+        // --- CONVERSION LOGIQUE ---
+        let firstHexVal = parseInt(v1, 16);
+        let lastDecVal = parseInt(vL, 10);
+        let tailHexVal = parseInt(vT, 16);
+
+        // --- ALGORITHME DE DÉLAI ---
+        // Poids du premier chiffre + ajustement décimal + précision finale
+        let baseDelay = (firstHexVal * 15) + (lastDecVal * 4) + (tailHexVal % 60);
+        
+        // Stabilisation du cycle (entre 45s et 240s)
+        let finalDelay = (baseDelay % 240);
+        if (finalDelay < 45) finalDelay += 60;
+
+        // --- CALCUL DE L'HEURE ---
+        let timeParts = tRef.split(':');
+        let dateObj = new Date();
+        dateObj.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]));
+        dateObj.setSeconds(dateObj.getSeconds() + finalDelay);
+
+        let formattedTime = dateObj.toLocaleTimeString('fr-FR', { hour12: false });
+
+        // Affichage
+        document.getElementById('finalTime').innerText = formattedTime;
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
