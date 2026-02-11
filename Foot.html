@@ -3,145 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAFE-FOOT V12 | BET261 EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>VIRTUAL SAFE-BET V1.2 | PRO EDITION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --safe-green: #00ff88; 
-            --danger-red: #ff3e3e;
-            --bg: #0d1117; 
+            --accent: #00ff88; 
+            --danger: #ff3e3e;
+            --warning: #ffcc00;
+            --bg: #0b0e14; 
             --panel: #161b22;
+            --input-bg: #010409;
         }
         
         body { 
-            background: var(--bg); color: #c9d1d9; font-family: 'Inter', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0;
+            background: var(--bg); 
+            color: #c9d1d9; 
+            font-family: 'Inter', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px; 
+            margin: 0;
+            min-height: 100vh;
         }
 
-        .container { width: 100%; max-width: 400px; }
+        .container { width: 100%; max-width: 400px; margin-top: 20px; }
 
         .header { 
-            text-align: center; padding: 20px; background: var(--panel);
-            border-radius: 20px 20px 0 0; border: 1px solid #30363d;
-            border-bottom: 3px solid var(--safe-green);
+            text-align: center; 
+            padding: 25px; 
+            background: var(--panel);
+            border-radius: 24px 24px 0 0; 
+            border: 1px solid #30363d;
+            border-bottom: 4px solid var(--accent);
         }
 
-        h1 { font-family: 'Orbitron'; font-size: 16px; color: var(--safe-green); margin: 0; }
+        h1 { 
+            font-family: 'Orbitron'; 
+            font-size: 18px; 
+            color: var(--accent); 
+            margin: 0; 
+            letter-spacing: 1px;
+        }
 
         .main-card { 
-            background: var(--panel); padding: 25px; border: 1px solid #30363d;
-            border-top: none; border-radius: 0 0 20px 20px;
+            background: var(--panel); 
+            padding: 30px; 
+            border: 1px solid #30363d;
+            border-top: none; 
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 11px; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .input-group { margin-bottom: 25px; }
+        
+        label { 
+            display: block; 
+            font-size: 10px; 
+            color: #8b949e; 
+            margin-bottom: 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
 
-        .score-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .score-inputs { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 10px; 
+        }
+
         input { 
-            width: 100%; background: #010409; border: 1px solid #30363d; 
-            color: #fff; padding: 12px 5px; border-radius: 8px; text-align: center;
-            font-size: 16px; font-weight: bold; outline: none;
+            width: 100%; 
+            background: var(--input-bg); 
+            border: 1px solid #30363d; 
+            color: #fff; 
+            padding: 15px 5px; 
+            border-radius: 12px; 
+            text-align: center;
+            font-size: 18px; 
+            font-weight: 900; 
+            font-family: 'Orbitron';
+            outline: none;
+            transition: 0.3s;
         }
-        input:focus { border-color: var(--safe-green); }
+
+        input:focus { border-color: var(--accent); background: #0d1117; }
+
+        /* Remove arrows from number input */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
         button { 
-            width: 100%; padding: 18px; background: var(--safe-green); 
-            color: #0d1117; border: none; border-radius: 12px; 
-            font-family: 'Orbitron'; font-weight: 900; cursor: pointer;
-            transition: 0.3s; margin-top: 10px;
+            width: 100%; 
+            padding: 20px; 
+            background: var(--accent); 
+            color: #0d1117; 
+            border: none; 
+            border-radius: 16px; 
+            font-family: 'Orbitron'; 
+            font-weight: 900; 
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
         }
-        button:hover { opacity: 0.9; transform: scale(0.98); }
+
+        button:active { transform: scale(0.96); }
 
         .result-area { 
-            margin-top: 25px; padding: 20px; background: #010409; 
-            border-radius: 15px; border: 1px solid #30363d; display: none;
-            text-align: center; animation: slideUp 0.4s ease;
+            margin-top: 25px; 
+            padding: 25px; 
+            background: var(--input-bg); 
+            border-radius: 20px; 
+            border: 1px solid #30363d; 
+            display: none;
+            text-align: center; 
+            animation: fadeIn 0.5s ease;
         }
 
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .prediction { font-family: 'Orbitron'; font-size: 28px; margin: 10px 0; }
-        .win-rate { font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 20px; }
+        .prediction-label { font-size: 10px; color: #8b949e; margin-bottom: 8px; }
+        .prediction-value { font-family: 'Orbitron'; font-size: 32px; margin-bottom: 15px; }
         
-        .safe { color: var(--safe-green); }
-        .warning { color: #ffcc00; }
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .safe-bg { background: rgba(0, 255, 136, 0.1); color: var(--accent); border: 1px solid var(--accent); }
+        .warning-bg { background: rgba(255, 204, 0, 0.1); color: var(--warning); border: 1px solid var(--warning); }
+        .danger-bg { background: rgba(255, 62, 62, 0.1); color: var(--danger); border: 1px solid var(--danger); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>VIRTUAL SAFE-BET v1.0</h1>
-        <div style="font-size: 9px; color: #8b949e; margin-top: 5px;">ALGORITHM OPTIMIZED FOR BET261</div>
+        <h1>VIRTUAL ANALYSIS V1.2</h1>
+        <div style="font-size: 9px; color: #555; margin-top: 5px; font-weight: bold;">BET261 PATTERN SYNC</div>
     </div>
 
     <div class="main-card">
         <div class="input-group">
-            <label>Last 4 Total Goals (e.g. 0, 3, 1, 2)</label>
+            <label>Last 4 Matches (Total Goals)</label>
             <div class="score-inputs">
-                <input type="number" id="s1" placeholder="G1">
-                <input type="number" id="s2" placeholder="G2">
-                <input type="number" id="s3" placeholder="G3">
-                <input type="number" id="s4" placeholder="G4">
+                <input type="number" id="g1" placeholder="G1">
+                <input type="number" id="g2" placeholder="G2">
+                <input type="number" id="g3" placeholder="G3">
+                <input type="number" id="g4" placeholder="G4">
             </div>
         </div>
 
-        <button onclick="runAnalysis()">GENERATE SAFE PICK</button>
+        <button onclick="analyzeData()">Analyze Market</button>
 
-        <div class="result-area" id="resBox">
-            <div id="riskLevel" class="win-rate"></div>
-            <div class="prediction" id="pickText">OVER 1.5</div>
-            <div style="font-size: 11px; color: #484f58;">Probabilistic Confidence Index</div>
+        <div class="result-area" id="resultBox">
+            <div class="prediction-label">RECOMMENDED PICK</div>
+            <div class="prediction-value" id="pick">---</div>
+            <div id="confidenceBadge" class="badge">---</div>
+            <div style="font-size: 10px; color: #444; margin-top: 15px;">Calculated via Regression Cycle</div>
         </div>
     </div>
 </div>
 
 <script>
-    function runAnalysis() {
-        const scores = [
-            parseInt(document.getElementById('s1').value || 0),
-            parseInt(document.getElementById('s2').value || 0),
-            parseInt(document.getElementById('s3').value || 0),
-            parseInt(document.getElementById('s4').value || 0)
-        ];
+    function analyzeData() {
+        const v1 = document.getElementById('g1').value;
+        const v2 = document.getElementById('g2').value;
+        const v3 = document.getElementById('g3').value;
+        const v4 = document.getElementById('g4').value;
 
-        const avgGoals = (scores[0] + scores[1] + scores[2] + scores[3]) / 4;
-        let prediction = "";
-        let confidence = "";
-        let colorClass = "";
-
-        // Logic Safe: Regression to the Mean
-        // Raha latsaky ny 2 ny salan'isa tamin'ny lalao 4 farany, 
-        // midika izany fa "due" na tokony hivoaka ny baolina amin'ny manaraka.
-        if (avgGoals <= 1.5) {
-            prediction = "OVER 1.5";
-            confidence = "VERY HIGH (92%)";
-            colorClass = "safe";
-        } else if (avgGoals > 1.5 && avgGoals <= 2.5) {
-            prediction = "OVER 1.5";
-            confidence = "HIGH (84%)";
-            colorClass = "safe";
-        } else if (avgGoals > 2.5 && avgGoals <= 3.5) {
-            prediction = "OVER 2.5";
-            confidence = "MODERATE (72%)";
-            colorClass = "warning";
-        } else {
-            prediction = "UNDER 3.5"; // Rehefa be loatra ny baolina dia mirona hihena ny cycle
-            confidence = "SAFE (78%)";
-            colorClass = "safe";
+        // Validation: Check if all inputs are filled
+        if (v1 === "" || v2 === "" || v3 === "" || v4 === "") {
+            alert("Please enter all 4 game results.");
+            return;
         }
 
-        const resBox = document.getElementById('resBox');
-        const riskLevel = document.getElementById('riskLevel');
+        const scores = [parseInt(v1), parseInt(v2), parseInt(v3), parseInt(v4)];
+        const total = scores.reduce((a, b) => a + b, 0);
+        const avg = total / 4;
+
+        let pick = "";
+        let confidence = "";
+        let styleClass = "";
+
+        // CORE LOGIC: Cycle Rebalance
+        if (avg <= 1.25) {
+            pick = "OVER 1.5";
+            confidence = "94% CONFIDENCE";
+            styleClass = "safe-bg";
+        } else if (avg > 1.25 && avg <= 2.25) {
+            pick = "OVER 1.5";
+            confidence = "86% CONFIDENCE";
+            styleClass = "safe-bg";
+        } else if (avg > 2.25 && avg <= 3.25) {
+            pick = "OVER 2.5";
+            confidence = "72% MODERATE";
+            styleClass = "warning-bg";
+        } else {
+            pick = "UNDER 3.5";
+            confidence = "80% SAFE";
+            styleClass = "safe-bg";
+        }
+
+        // Display results
+        document.getElementById('pick').innerText = pick;
+        document.getElementById('pick').style.color = (styleClass === 'safe-bg' ? '#00ff88' : (styleClass === 'warning-bg' ? '#ffcc00' : '#ff3e3e'));
         
-        document.getElementById('pickText').innerText = prediction;
-        document.getElementById('pickText').className = "prediction " + colorClass;
-        
-        riskLevel.innerText = "CONFIDENCE: " + confidence;
-        riskLevel.style.border = "1px solid " + (colorClass === 'safe' ? "#00ff88" : "#ffcc00");
-        riskLevel.style.color = (colorClass === 'safe' ? "#00ff88" : "#ffcc00");
-        
-        resBox.style.display = 'block';
+        const badge = document.getElementById('confidenceBadge');
+        badge.innerText = confidence;
+        badge.className = "badge " + styleClass;
+
+        document.getElementById('resultBox').style.display = 'block';
     }
 </script>
 
