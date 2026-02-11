@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR ADAPTIVE V6.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #ff0055; --bg: #08080a; --card: #121216; }
+        body { background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .terminal { width: 100%; max-width: 400px; background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { font-family: 'Orbitron'; font-size: 14px; color: var(--accent); text-align: center; letter-spacing: 2px; margin-bottom: 25px; text-transform: uppercase; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-size: 9px; color: #555; margin-bottom: 6px; text-transform: uppercase; font-weight: bold; }
+        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; font-size: 15px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: var(--accent); }
+        button { width: 100%; padding: 18px; background: var(--accent); color: #fff; border: none; border-radius: 6px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 12px; text-transform: uppercase; }
+        button:active { transform: scale(0.97); }
+        #res { margin-top: 25px; padding: 20px; background: #000; border-radius: 8px; border-left: 4px solid var(--accent); display: none; text-align: center; }
+        .time-out { font-family: 'Orbitron'; font-size: 34px; color: #fff; margin: 10px 0; }
+        .mode-tag { font-size: 10px; padding: 4px 10px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .short { background: rgba(255,0,85,0.2); color: var(--accent); }
+        .long { background: rgba(0,255,255,0.1); color: #00ffff; }
+    </style>
+</head>
+<body>
+
+<div class="terminal">
+    <h2>ENGINE V6.0 | ADAPTIVE</h2>
+
+    <div class="field">
+        <label>Last Time (HH:MM:SS)</label>
+        <input type="text" id="tIn" placeholder="14:10:05">
+    </div>
+
+    <div class="input-row">
+        <div class="field"><label>Hex 1</label><input type="text" id="h1" maxlength="1"></div>
+        <div class="field"><label>Last Dec</label><input type="text" id="dL" maxlength="1"></div>
+        <div class="field"><label>Tail</label><input type="text" id="hT" maxlength="2"></div>
+    </div>
+
+    <button onclick="calculateAdaptive()">Analyze Pattern</button>
+
+    <div id="res">
+        <div id="mode" class="mode-tag"></div>
+        <div class="time-out" id="timeRes">00:00:00</div>
+        <div style="font-size: 10px; color: #444;" id="desc"></div>
+    </div>
+</div>
+
+<script>
+    function calculateAdaptive() {
+        const t = document.getElementById('tIn').value;
+        const h1 = document.getElementById('h1').value;
+        const dL = document.getElementById('dL').value;
+        const hT = document.getElementById('hT').value;
+
+        if (!t.includes(':') || !h1 || !dL || !hT) return;
+
+        let vHex = parseInt(h1, 16);
+        let vDec = parseInt(dL, 10);
+        let vTail = parseInt(hT, 16);
+
+        // HYBRID LOGIC: Short vs Long detection
+        // If the Hex 1 is a letter (a-f), it often indicates a short cluster
+        let isShortCluster = isNaN(h1); 
+        let baseDelay = 0;
+        let modeText = "";
+        let modeClass = "";
+
+        if (isShortCluster) {
+            // SHORT MODE: 45s to 120s
+            baseDelay = 45 + (vTail % 60);
+            modeText = "Fast Cluster Detected";
+            modeClass = "short";
+        } else {
+            // LONG MODE: 150s to 400s
+            baseDelay = 150 + (vTail % 200);
+            modeText = "Extended Cycle";
+            modeClass = "long";
+        }
+
+        // Add precision drift
+        let totalDelay = baseDelay + (vHex * vDec);
+
+        let parts = t.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + totalDelay);
+
+        const result = d.toLocaleTimeString('en-GB', { hour12: false });
+        
+        document.getElementById('timeRes').innerText = result;
+        document.getElementById('mode').innerText = modeText;
+        document.getElementById('mode').className = "mode-tag " + modeClass;
+        document.getElementById('desc').innerText = `Algorithm Drift: +${totalDelay} seconds`;
+        document.getElementById('res').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
