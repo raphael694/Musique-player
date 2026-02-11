@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR V7.0 | PRECISION ENGINE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root { --accent: #00f2ff; --bg: #050505; --panel: #0f0f12; --danger: #ff0055; }
+        body { background: var(--bg); color: #fff; font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .terminal { width: 100%; max-width: 420px; background: var(--panel); border-radius: 15px; padding: 25px; border: 1px solid #1f1f26; box-shadow: 0 10px 40px rgba(0,242,255,0.1); }
+        h2 { font-family: 'Orbitron'; font-size: 15px; color: var(--accent); text-align: center; letter-spacing: 3px; margin-bottom: 25px; text-transform: uppercase; }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-size: 9px; color: #5a5a66; margin-bottom: 6px; text-transform: uppercase; font-weight: bold; }
+        input { width: 100%; background: #000; border: 1px solid #1f1f26; color: #fff; padding: 12px; border-radius: 6px; font-size: 15px; outline: none; box-sizing: border-box; }
+        input:focus { border-color: var(--accent); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        button { width: 100%; padding: 18px; background: var(--accent); color: #000; border: none; border-radius: 6px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        button:active { transform: scale(0.97); opacity: 0.8; }
+        #res { margin-top: 25px; padding: 20px; background: #000; border-radius: 8px; border: 1px solid #1f1f26; display: none; text-align: center; }
+        .time-out { font-family: 'Orbitron'; font-size: 38px; color: #fff; margin: 5px 0; }
+        .target-box { color: var(--accent); font-size: 11px; font-weight: bold; margin-bottom: 10px; }
+        .history { width: 100%; max-width: 420px; margin-top: 20px; background: #000; border-radius: 10px; padding: 15px; border: 1px solid #111; }
+        .history h3 { font-size: 10px; color: #444; text-transform: uppercase; margin-top: 0; }
+        .hist-item { display: flex; justify-content: space-between; font-size: 11px; padding: 8px 0; border-bottom: 1px solid #111; color: #888; }
+        .hist-item:last-child { border-bottom: none; }
+        .hist-time { color: #fff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="terminal">
+    <h2>ENGINE V7.0 | PRECISION</h2>
+
+    <div class="field">
+        <label>Reference Time (HH:MM:SS)</label>
+        <input type="text" id="tIn" placeholder="14:20:05">
+    </div>
+
+    <div class="grid">
+        <div class="field"><label>1st Hex</label><input type="text" id="h1" maxlength="1"></div>
+        <div class="field"><label>Last Dec</label><input type="text" id="dL" maxlength="1"></div>
+        <div class="field"><label>Tail</label><input type="text" id="hT" maxlength="2"></div>
+    </div>
+
+    <button onclick="calculateV7()">START DEEP ANALYSIS</button>
+
+    <div id="res">
+        <div class="target-box" id="targetInfo">TARGET DETECTED</div>
+        <div class="time-out" id="timeRes">00:00:00</div>
+        <div style="font-size: 10px; color: #444;" id="multiplier">SUGGESTED: 1.50x - 2.50x</div>
+    </div>
+</div>
+
+<div class="history">
+    <h3>Analysis History (Last 5)</h3>
+    <div id="histList"></div>
+</div>
+
+<script>
+    let history = [];
+
+    function calculateV7() {
+        const t = document.getElementById('tIn').value;
+        const h1 = document.getElementById('h1').value;
+        const dL = document.getElementById('dL').value;
+        const hT = document.getElementById('hT').value;
+
+        if (!t.includes(':') || !h1 || !dL || !hT) return;
+
+        let vHex = parseInt(h1, 16);
+        let vDec = parseInt(dL, 10);
+        let vTail = parseInt(hT, 16);
+
+        // --- ENHANCED ALGORITHM V7 ---
+        // Combination of Cluster Weighting & Decimal Drift
+        let isLetter = isNaN(h1); 
+        let baseDelay = 0;
+        let targetOdds = "";
+
+        if (isLetter) {
+            // FAST CLUSTER: Lower wait, lower multiplier
+            baseDelay = 35 + (vTail % 90);
+            targetOdds = "1.50x - 1.80x";
+        } else {
+            // RECOVERY CYCLE: Higher wait, higher multiplier
+            baseDelay = 120 + (vTail % 180) + (vDec * 10);
+            targetOdds = "2.10x - 3.50x";
+        }
+
+        // Add secondary Hex displacement
+        let totalDelay = baseDelay + (vHex * 4);
+
+        let parts = t.split(':');
+        let d = new Date();
+        d.setHours(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
+        d.setSeconds(d.getSeconds() + totalDelay);
+
+        const result = d.toLocaleTimeString('en-GB', { hour12: false });
+        
+        // Display result
+        document.getElementById('timeRes').innerText = result;
+        document.getElementById('multiplier').innerText = "SUGGESTED EXIT: " + targetOdds;
+        document.getElementById('res').style.display = 'block';
+
+        // Update History
+        updateHistory(t, result, targetOdds);
+    }
+
+    function updateHistory(ref, pred, odds) {
+        const item = { ref, pred, odds };
+        history.unshift(item);
+        if (history.length > 5) history.pop();
+
+        const list = document.getElementById('histList');
+        list.innerHTML = "";
+        history.forEach(h => {
+            list.innerHTML += `
+                <div class="hist-item">
+                    <span>REF: ${h.ref}</span>
+                    <span class="hist-time">PRED: ${h.pred}</span>
+                    <span>${h.odds}</span>
+                </div>`;
+        });
+    }
+</script>
+
+</body>
+</html>
