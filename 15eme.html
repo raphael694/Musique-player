@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIATOR ENGINE V4.0 | PRO TERMINAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --accent-color: #ff0055; 
+            --bg-dark: #050505; 
+            --panel-bg: #0f0f12;
+            --border-color: #1f1f26;
+        }
+        
+        body { 
+            background: var(--bg-dark); 
+            color: #e0e0e0; 
+            font-family: 'JetBrains Mono', monospace;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .terminal-container { 
+            width: 100%; 
+            max-width: 400px; 
+            background: var(--panel-bg); 
+            border-radius: 12px; 
+            padding: 30px; 
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-container::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+        }
+
+        h2 { 
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 16px; 
+            color: var(--accent-color); 
+            text-align: center; 
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper { margin-bottom: 20px; }
+        
+        label { 
+            display: block; 
+            font-size: 9px; 
+            color: #5a5a66; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+        }
+
+        input { 
+            width: 100%; 
+            background: #000; 
+            border: 1px solid var(--border-color); 
+            color: #fff;
+            padding: 14px; 
+            border-radius: 6px; 
+            font-size: 15px; 
+            outline: none; 
+            box-sizing: border-box;
+            transition: 0.2s ease;
+        }
+
+        input:focus { border-color: var(--accent-color); }
+
+        .hash-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+        }
+
+        button { 
+            width: 100%; 
+            padding: 20px; 
+            background: var(--accent-color); 
+            color: #fff;
+            border: none; 
+            border-radius: 6px; 
+            font-family: 'Orbitron', sans-serif; 
+            font-weight: 900;
+            font-size: 12px;
+            cursor: pointer; 
+            margin-top: 15px; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .output-box { 
+            margin-top: 30px; 
+            padding: 20px; 
+            background: #000; 
+            border-radius: 8px;
+            border: 1px solid #1a1a1a; 
+            display: none;
+            text-align: center;
+        }
+
+        .status-tag { font-size: 9px; color: #444; margin-bottom: 10px; }
+        .result-time { 
+            font-size: 36px; 
+            font-family: 'Orbitron', sans-serif; 
+            color: #fff; 
+            margin: 5px 0; 
+            font-weight: 900;
+        }
+
+        .target-range { font-size: 11px; color: var(--accent-color); font-weight: bold; }
+        
+        .disclaimer { 
+            font-size: 8.5px; 
+            color: #333; 
+            margin-top: 20px; 
+            text-align: center; 
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal-container">
+    <h2>ENGINE V4.0 PRO</h2>
+
+    <div class="input-wrapper">
+        <label>Reference Time (HH:MM:SS)</label>
+        <input type="text" id="refTime" placeholder="12:45:01">
+    </div>
+
+    <div class="hash-grid">
+        <div class="input-wrapper">
+            <label>1st Hex</label>
+            <input type="text" id="hex1" maxlength="1">
+        </div>
+        <div class="input-wrapper">
+            <label>Last Dec</label>
+            <input type="text" id="decLast" maxlength="1">
+        </div>
+        <div class="input-wrapper">
+            <label>Tail</label>
+            <input type="text" id="hexTail" maxlength="2">
+        </div>
+    </div>
+
+    <button onclick="runV4Calculation()">Analyze Algorithm</button>
+
+    <div class="output-box" id="output">
+        <div class="status-tag">CALCULATION COMPLETE</div>
+        <div class="result-time" id="finalTime">00:00:00</div>
+        <div class="target-range">EXPECTED: 2.10x - 3.50x</div>
+    </div>
+
+    <div class="disclaimer">
+        ENCRYPTED SEQUENCE ANALYSIS ENABLED.<br>
+        DATA RETRIEVED VIA SEED-OFFSET CALCULATION.
+    </div>
+</div>
+
+<script>
+    function runV4Calculation() {
+        const timeInput = document.getElementById('refTime').value;
+        const h1 = document.getElementById('hex1').value;
+        const dL = document.getElementById('decLast').value;
+        const hT = document.getElementById('hexTail').value;
+
+        if (!timeInput.includes(':') || !h1 || !dL || !hT) {
+            alert("Error: All fields are required.");
+            return;
+        }
+
+        // STRATEGY V4 ALGORITHM
+        let valHex = parseInt(h1, 16);
+        let valDec = parseInt(dL, 10);
+        let valTail = parseInt(hT, 16);
+
+        // Calculate Delay based on seed patterns
+        let baseDelay = (valTail % 60) + 35; 
+        let shift = (valHex * valDec) / 1.5;
+        let totalSeconds = baseDelay + shift + 10; 
+
+        // Time processing
+        let timeParts = timeInput.split(':');
+        let dateObj = new Date();
+        dateObj.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), parseInt(timeParts[2]));
+        
+        // Apply calculated offset
+        dateObj.setSeconds(dateObj.getSeconds() + totalSeconds);
+
+        const finalResult = dateObj.toLocaleTimeString('en-GB', { hour12: false });
+        
+        document.getElementById('finalTime').innerText = finalResult;
+        document.getElementById('output').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
